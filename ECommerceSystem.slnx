@@ -1,7 +1,17 @@
 <Solution>
+  <Folder Name="/SolutionItems/">
+    <File Path="ServiceUrls.txt" />
+  </Folder>
   <Folder Name="/src/" />
-  <Folder Name="/src/services/" />
-  <Folder Name="/src/services/ProductService/">
+  <Folder Name="/src/ApiGateway/" />
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/BasketService/">
+    <Project Path="src/services/BasketService/BasketService.API/BasketService.API.csproj" />
+    <Project Path="src/services/BasketService/BasketService.Application/BasketService.Application.csproj" />
+    <Project Path="src/services/BasketService/BasketService.Domain/BasketService.Domain.csproj" />
+    <Project Path="src/services/BasketService/BasketService.Infrastructure/BasketService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/ProductService/">
     <Project Path="src/services/ProductService/ProductService.API/ProductService.API.csproj" />
     <Project Path="src/services/ProductService/ProductService.Application/ProductService.Application.csproj" />
     <Project Path="src/services/ProductService/ProductService.Domain/ProductService.Domain.csproj" />

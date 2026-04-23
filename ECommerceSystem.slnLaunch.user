@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "src\\services\\ProductService\\ProductService.API\\ProductService.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\services\\BasketService\\BasketService.API\\BasketService.API.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
