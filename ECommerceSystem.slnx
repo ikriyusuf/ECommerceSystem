@@ -1,1 +1,10 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/services/" />
+  <Folder Name="/src/services/ProductService/">
+    <Project Path="src/services/ProductService/ProductService.API/ProductService.API.csproj" />
+    <Project Path="src/services/ProductService/ProductService.Application/ProductService.Application.csproj" />
+    <Project Path="src/services/ProductService/ProductService.Domain/ProductService.Domain.csproj" />
+    <Project Path="src/services/ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj" />
+  </Folder>
+</Solution>
