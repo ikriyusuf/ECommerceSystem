@@ -17,10 +17,10 @@ public class BasketController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Create(Guid id)
+    [HttpGet("{userId}")]
+    public async Task<IActionResult> GetBasket(string userId)
     {
-        var query = new GetBasketQuery(id);
+        var query = new GetBasketQuery(userId);
         var basket = await _mediator.Send(query);
 
         if (basket is null)
@@ -30,7 +30,7 @@ public class BasketController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Update(Basket basket)
+    public async Task<IActionResult> UpdateBasket([FromBody] Basket basket)
     {
         var command = new UpdateBasketCommand(basket);
         var result = await _mediator.Send(command);
@@ -38,12 +38,12 @@ public class BasketController : ControllerBase
         return Ok(result);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    [HttpDelete("{userId}")]
+    public async Task<IActionResult> DeleteBasket(string userId)
     {
-        var command = new DeleteBasketCommand(id);
+        var command = new DeleteBasketCommand(userId);
         await _mediator.Send(command);
 
-        return Ok();
+        return NoContent();
     }
 }

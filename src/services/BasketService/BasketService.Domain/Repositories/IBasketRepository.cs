@@ -4,7 +4,7 @@ namespace BasketService.Domain.Repositories;
 
 public interface IBasketRepository
 {
-    Task<Basket?> GetBasketAsync(Guid id);
+    Task<Basket?> GetBasketAsync(string userId);
     Task<Basket> UpdateBasketAsync(Basket basket);
-    Task DeleteBasketAsync(string id);
+    Task DeleteBasketAsync(string userId);
 }

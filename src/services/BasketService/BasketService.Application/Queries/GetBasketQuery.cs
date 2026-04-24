@@ -4,7 +4,7 @@ using MediatR;
 
 namespace BasketService.Application.Queries;
 
-public record GetBasketQuery(Guid Id) : IRequest<Basket?>;
+public record GetBasketQuery(string UserId) : IRequest<Basket?>;
 
 public class GetBasketQueryHandler : IRequestHandler<GetBasketQuery, Basket?>
 {
@@ -17,6 +17,6 @@ public class GetBasketQueryHandler : IRequestHandler<GetBasketQuery, Basket?>
 
     public async Task<Basket?> Handle(GetBasketQuery request, CancellationToken cancellationToken)
     {
-        return await _repository.GetBasketAsync(request.Id);
+        return await _repository.GetBasketAsync(request.UserId);
     }
 }

@@ -14,14 +14,14 @@ public class RedisBasketRepository : IBasketRepository
         _cache = cache;
     }
 
-    public async Task<Basket?> GetBasketAsync(Guid id)
+    public async Task<Basket?> GetBasketAsync(string userId)
     {
-        var basket = await _cache.GetStringAsync(id.ToString());
+        var data = await _cache.GetStringAsync(userId);
 
-        if (string.IsNullOrEmpty(basket))
+        if (string.IsNullOrEmpty(data))
             return null;
 
-        return JsonSerializer.Deserialize<Basket>(basket);
+        return JsonSerializer.Deserialize<Basket>(data);
     }
 
     public async Task<Basket> UpdateBasketAsync(Basket basket)
@@ -32,7 +32,7 @@ public class RedisBasketRepository : IBasketRepository
         };
 
         await _cache.SetStringAsync(
-            basket.Id.ToString(),
+            basket.UserId,
             JsonSerializer.Serialize(basket),
             options
         );
@@ -40,8 +40,8 @@ public class RedisBasketRepository : IBasketRepository
         return basket;
     }
 
-    public async Task DeleteBasketAsync(string id)
+    public async Task DeleteBasketAsync(string userId)
     {
-        await _cache.RemoveAsync(id);
+        await _cache.RemoveAsync(userId);
     }
 }
