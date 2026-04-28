@@ -12,13 +12,13 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/services/BasketService/BasketService.API/BasketService.API.csproj", "src/services/BasketService/BasketService.API/"]
-COPY ["src/services/BasketService/BasketService.Application/BasketService.Application.csproj", "src/services/BasketService/BasketService.Application/"]
-COPY ["src/services/BasketService/BasketService.Domain/BasketService.Domain.csproj", "src/services/BasketService/BasketService.Domain/"]
-COPY ["src/services/BasketService/BasketService.Infrastructure/BasketService.Infrastructure.csproj", "src/services/BasketService/BasketService.Infrastructure/"]
-RUN dotnet restore "./src/services/BasketService/BasketService.API/BasketService.API.csproj"
+COPY ["src/Services/BasketService/BasketService.API/BasketService.API.csproj", "src/Services/BasketService/BasketService.API/"]
+COPY ["src/Services/BasketService/BasketService.Application/BasketService.Application.csproj", "src/Services/BasketService/BasketService.Application/"]
+COPY ["src/Services/BasketService/BasketService.Domain/BasketService.Domain.csproj", "src/Services/BasketService/BasketService.Domain/"]
+COPY ["src/Services/BasketService/BasketService.Infrastructure/BasketService.Infrastructure.csproj", "src/Services/BasketService/BasketService.Infrastructure/"]
+RUN dotnet restore "./src/Services/BasketService/BasketService.API/BasketService.API.csproj"
 COPY . .
-WORKDIR "/src/src/services/BasketService/BasketService.API"
+WORKDIR "/src/src/Services/BasketService/BasketService.API"
 RUN dotnet build "./BasketService.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage

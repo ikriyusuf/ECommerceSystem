@@ -1,23 +1,23 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/ci.yml" />
     <File Path="docker-compose.yml" />
-  </Folder>
-  <Folder Name="/SolutionItems/">
-    <File Path="ServiceUrls.txt" />
+    <File Path=".dockerignore" />
+    <File Path="README.md" />
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/ApiGateway/" />
   <Folder Name="/src/Services/" />
   <Folder Name="/src/Services/BasketService/">
-    <Project Path="src/services/BasketService/BasketService.API/BasketService.API.csproj" />
-    <Project Path="src/services/BasketService/BasketService.Application/BasketService.Application.csproj" />
-    <Project Path="src/services/BasketService/BasketService.Domain/BasketService.Domain.csproj" />
-    <Project Path="src/services/BasketService/BasketService.Infrastructure/BasketService.Infrastructure.csproj" />
+    <Project Path="src/Services/BasketService/BasketService.API/BasketService.API.csproj" />
+    <Project Path="src/Services/BasketService/BasketService.Application/BasketService.Application.csproj" />
+    <Project Path="src/Services/BasketService/BasketService.Domain/BasketService.Domain.csproj" />
+    <Project Path="src/Services/BasketService/BasketService.Infrastructure/BasketService.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/src/Services/ProductService/">
-    <Project Path="src/services/ProductService/ProductService.API/ProductService.API.csproj" />
-    <Project Path="src/services/ProductService/ProductService.Application/ProductService.Application.csproj" />
-    <Project Path="src/services/ProductService/ProductService.Domain/ProductService.Domain.csproj" />
-    <Project Path="src/services/ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj" />
+    <Project Path="src/Services/ProductService/ProductService.API/ProductService.API.csproj" />
+    <Project Path="src/Services/ProductService/ProductService.Application/ProductService.Application.csproj" />
+    <Project Path="src/Services/ProductService/ProductService.Domain/ProductService.Domain.csproj" />
+    <Project Path="src/Services/ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj" />
   </Folder>
 </Solution>

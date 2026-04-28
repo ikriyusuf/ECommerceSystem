@@ -1,7 +1,7 @@
 [
   {
     "ContainingType": "BasketService.API.Controllers.BasketController",
-    "Method": "Update",
+    "Method": "UpdateBasket",
     "RelativePath": "api/Basket",
     "HttpMethod": "POST",
     "IsController": true,
@@ -17,15 +17,15 @@
   },
   {
     "ContainingType": "BasketService.API.Controllers.BasketController",
-    "Method": "Create",
-    "RelativePath": "api/Basket/{id}",
+    "Method": "GetBasket",
+    "RelativePath": "api/Basket/{userId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
-        "Type": "System.Guid",
+        "Name": "userId",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -33,14 +33,14 @@
   },
   {
     "ContainingType": "BasketService.API.Controllers.BasketController",
-    "Method": "Delete",
-    "RelativePath": "api/Basket/{id}",
+    "Method": "DeleteBasket",
+    "RelativePath": "api/Basket/{userId}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
+        "Name": "userId",
         "Type": "System.String",
         "IsRequired": true
       }

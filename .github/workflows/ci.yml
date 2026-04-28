@@ -19,11 +19,11 @@ jobs:
       - name: Build Product API
         run: |
           docker build \
-            -f src/services/ProductService/ProductService.API/Dockerfile \
+            -f src/Services/ProductService/ProductService.API/Dockerfile \
             .
 
       - name: Build Basket API
         run: |
           docker build \
-            -f src/services/BasketService/BasketService.API/Dockerfile \
+            -f src/Services/BasketService/BasketService.API/Dockerfile \
             .
