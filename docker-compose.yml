@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+
+  # ─── ALTYAPI SERVİSLERİ ───────────────────────────────
+
+  postgresql:
+    image: postgres:15
+    container_name: ecommerce_postgresql
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: productdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: ecommerce_redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: ecommerce_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secret
+    ports:
+      - "5672:5672"    # uygulama bağlantısı
+      - "15672:15672"  # yönetim paneli (tarayıcıdan girebilirsin)
+
+  # ─── UYGULAMA SERVİSLERİ ──────────────────────────────
+
+  product.api:
+    build:
+      context: .   # Dockerfile burada
+      dockerfile: src/services/ProductService/ProductService.API/Dockerfile
+    container_name: ecommerce_product
+    environment:
+      - ConnectionStrings__Default=Host=postgresql;Port=5432;Database=productdb;Username=admin;Password=secret
+      - RabbitMQ__Host=rabbitmq
+    ports:
+      - "5001:8080"
+    depends_on:
+      - postgresql
+      - rabbitmq
+  basket.api:
+    build:
+      context: .      # Dockerfile burada
+      dockerfile: src/services/BasketService/BasketService.API/Dockerfile
+    container_name: ecommerce_basket
+    environment:
+      - Redis__ConnectionString=redis:6379
+      - RabbitMQ__Host=rabbitmq
+    ports:
+      - "5002:8080"
+    depends_on:
+      - redis
+      - rabbitmq
+
+volumes:
+  postgresql_data:
