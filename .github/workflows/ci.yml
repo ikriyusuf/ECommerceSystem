@@ -1,11 +1,9 @@
 name: CI Pipeline
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
@@ -13,10 +11,10 @@ jobs:
 
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:16         # latest yerine sabit versiyon kullan
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: Monster.123
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}   # düz metin şifre koyma
           POSTGRES_DB: ECommerce_ProductDb
         ports:
           - 5432:5432
@@ -39,7 +37,16 @@ jobs:
         run: dotnet tool install --global dotnet-ef
 
       - name: Restore
-        run: dotnet restore src/Services/ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj
+        run: |
+          dotnet restore src/Services/ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj
+          dotnet restore src/Services/ProductService/ProductService.API/ProductService.API.csproj
+
+      - name: Build
+        run: |
+          dotnet build src/Services/ProductService/ProductService.Infrastructure \
+            --no-restore --configuration Release
+          dotnet build src/Services/ProductService/ProductService.API \
+            --no-restore --configuration Release
 
       - name: Get Current Migration
         id: current_migration
@@ -47,8 +54,8 @@ jobs:
           CURRENT=$(dotnet ef migrations list \
             --project src/Services/ProductService/ProductService.Infrastructure \
             --startup-project src/Services/ProductService/ProductService.API \
-            --no-build | tail -1)
-          echo "migration=$CURRENT" >> $GITHUB_OUTPUT
+            --no-build 2>/dev/null | grep -v "^$" | tail -1 || echo "0")
+          echo "migration=${CURRENT:-0}" >> $GITHUB_OUTPUT
 
       - name: Apply Migration
         id: migrate
@@ -56,24 +63,29 @@ jobs:
           dotnet ef database update \
             --project src/Services/ProductService/ProductService.Infrastructure \
             --startup-project src/Services/ProductService/ProductService.API \
+            --no-build \
             --connection "${{ secrets.DB_CONNECTION_STRING }}"
 
       - name: Rollback on Failure
         if: failure() && steps.migrate.outcome == 'failure'
         run: |
-          dotnet ef database update "${{ steps.current_migration.outputs.migration }}" \
+          TARGET="${{ steps.current_migration.outputs.migration }}"
+          dotnet ef database update "$TARGET" \
             --project src/Services/ProductService/ProductService.Infrastructure \
             --startup-project src/Services/ProductService/ProductService.API \
+            --no-build \
             --connection "${{ secrets.DB_CONNECTION_STRING }}"
 
-      - name: Build Product API
+      - name: Build Product API Image
         run: |
           docker build \
             -f src/Services/ProductService/ProductService.API/Dockerfile \
+            -t product-api:${{ github.sha }} \     # tag ekle
             .
 
-      - name: Build Basket API
+      - name: Build Basket API Image
         run: |
           docker build \
             -f src/Services/BasketService/BasketService.API/Dockerfile \
+            -t basket-api:${{ github.sha }} \
             .
