@@ -14,7 +14,7 @@ jobs:
         image: postgres:16         # latest yerine sabit versiyon kullan
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}   # düz metin şifre koyma
+          POSTGRES_PASSWORD: Monster.123  # düz metin şifre koyma
           POSTGRES_DB: ECommerce_ProductDb
         ports:
           - 5432:5432
