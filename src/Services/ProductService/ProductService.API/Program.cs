@@ -35,12 +35,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
+if (app.Environment.IsDevelopment())
 {
-    var serviceProvider = scope.ServiceProvider;
-    var dbContext = serviceProvider.GetRequiredService<ProductDbContext>();
-
+    Console.WriteLine($"Current environment: {app.Environment.EnvironmentName}");
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ProductDbContext>();
     dbContext.Database.Migrate();
+    Console.WriteLine("Database migrated successfully.");
 }
 
 app.Run();

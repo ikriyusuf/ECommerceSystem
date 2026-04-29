@@ -54,7 +54,7 @@ public class ProductsController : ControllerBase
     /// <summary>
     /// Yeni bir ürün oluşturur.
     /// </summary>
-    [HttpPost]
+    [HttpPost("Create")]
     [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(

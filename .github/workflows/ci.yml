@@ -1,5 +1,4 @@
 name: CI Pipeline
-
 on:
   push:
     branches:
@@ -12,9 +11,57 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: Monster.123
+          POSTGRES_DB: ECommerce_ProductDb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install EF Tool
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Get Current Migration
+        id: current_migration
+        run: |
+          CURRENT=$(dotnet ef migrations list \
+            --project src/Services/ProductService/ProductService.Infrastructure \
+            --startup-project src/Services/ProductService/ProductService.API \
+            --no-build | tail -1)
+          echo "migration=$CURRENT" >> $GITHUB_OUTPUT
+
+      - name: Apply Migration
+        id: migrate
+        run: |
+          dotnet ef database update \
+            --project src/Services/ProductService/ProductService.Infrastructure \
+            --startup-project src/Services/ProductService/ProductService.API \
+            --connection "${{ secrets.DB_CONNECTION_STRING }}"
+
+      - name: Rollback on Failure
+        if: failure() && steps.migrate.outcome == 'failure'
+        run: |
+          dotnet ef database update "${{ steps.current_migration.outputs.migration }}" \
+            --project src/Services/ProductService/ProductService.Infrastructure \
+            --startup-project src/Services/ProductService/ProductService.API \
+            --connection "${{ secrets.DB_CONNECTION_STRING }}"
 
       - name: Build Product API
         run: |
