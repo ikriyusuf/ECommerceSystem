@@ -15,11 +15,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
-
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ─── Startup Migration ────────────────────────────────────────
+// Migration her ortamda (development, staging, production) container
+// ayağa kalkarken otomatik olarak uygulanır. CI pipeline'a gerek yok.
+await ApplyMigrationsAsync(app);
+
+// ─── Middleware Pipeline ──────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -27,21 +30,37 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Global Exception Handling
 app.UseMiddleware<ProductService.API.Middlewares.ExceptionHandlingMiddleware>();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
-if (app.Environment.IsDevelopment())
-{
-    Console.WriteLine($"Current environment: {app.Environment.EnvironmentName}");
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<ProductDbContext>();
-    dbContext.Database.Migrate();
-    Console.WriteLine("Database migrated successfully.");
-}
-
 app.Run();
+
+// ─── Local Functions ──────────────────────────────────────────
+static async Task ApplyMigrationsAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ProductDbContext>();
+        var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+
+        if (pendingMigrations.Any())
+        {
+            logger.LogInformation("Applying {Count} pending migration(s)...", pendingMigrations.Count());
+            await dbContext.Database.MigrateAsync();
+            logger.LogInformation("Database migrations applied successfully.");
+        }
+        else
+        {
+            logger.LogInformation("Database is up to date. No migrations to apply.");
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while applying database migrations.");
+        throw;
+    }
+}

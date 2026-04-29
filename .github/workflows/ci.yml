@@ -1,101 +1,89 @@
 name: CI Pipeline
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+
 jobs:
-  build:
+  # ─────────────────────────────────────────────────────────────
+  # JOB 1: Build & Test
+  # ─────────────────────────────────────────────────────────────
+  build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: Monster.123
-          POSTGRES_DB: ECommerce_ProductDb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
-      - name: Install EF Tool
-        run: dotnet tool install --global dotnet-ef
+      - name: Restore dependencies
+        run: dotnet restore ECommerceSystem.slnx
 
-      - name: Restore
-        run: |
-          dotnet restore src/Services/ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj
-          dotnet restore src/Services/ProductService/ProductService.API/ProductService.API.csproj
+      - name: Build solution
+        run: dotnet build ECommerceSystem.slnx --no-restore --configuration Release
 
-      - name: Build
-        run: |
-          dotnet build src/Services/ProductService/ProductService.Infrastructure \
-            --no-restore --configuration Release
-          dotnet build src/Services/ProductService/ProductService.API \
-            --no-restore --configuration Release
+      - name: Run tests
+        run: dotnet test ECommerceSystem.slnx --no-build --configuration Release --verbosity normal
 
-      - name: Get Current Migration
-        id: current_migration
-        run: |
-          CURRENT=$(dotnet ef migrations list \
-            --project src/Services/ProductService/ProductService.Infrastructure \
-            --startup-project src/Services/ProductService/ProductService.API \
-            --no-build \
-            --configuration Release \
-            2>/dev/null | grep -E "^\S" | tail -1 || echo "")
+  # ─────────────────────────────────────────────────────────────
+  # JOB 2: Build & Push Docker Images
+  # Sadece main branch'e push edildiğinde çalışır
+  # ─────────────────────────────────────────────────────────────
+  docker:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
-          if [ -z "$CURRENT" ]; then
-            echo "migration=0" >> $GITHUB_OUTPUT
-          else
-            echo "migration=$CURRENT" >> $GITHUB_OUTPUT
-          fi
+    permissions:
+      contents: read
+      packages: write
 
-      - name: Apply Migration
-        id: migrate
-        run: |
-          dotnet ef database update \
-            --project src/Services/ProductService/ProductService.Infrastructure \
-            --startup-project src/Services/ProductService/ProductService.API \
-            --no-build \
-            --configuration Release \
-            --connection "${{ secrets.DB_CONNECTION_STRING }}"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Rollback on Failure
-        if: failure() && steps.migrate.outcome == 'failure'
-        run: |
-          TARGET="${{ steps.current_migration.outputs.migration }}"
-          echo "Rolling back to: $TARGET"
-          dotnet ef database update "$TARGET" \
-            --project src/Services/ProductService/ProductService.Infrastructure \
-            --startup-project src/Services/ProductService/ProductService.API \
-            --no-build \
-            --configuration Release \
-            --connection "${{ secrets.DB_CONNECTION_STRING }}"
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Product API Image
-        run: |
-          docker build \
-            -f src/Services/ProductService/ProductService.API/Dockerfile \
-            -t product-api:${{ github.sha }} \
-            .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build Basket API Image
-        run: |
-          docker build \
-            -f src/Services/BasketService/BasketService.API/Dockerfile \
-            -t basket-api:${{ github.sha }} \
-            .
+      - name: Build & push ProductService image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Services/ProductService/ProductService.API/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/product-api:latest
+            ${{ env.IMAGE_PREFIX }}/product-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push BasketService image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Services/BasketService/BasketService.API/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/basket-api:latest
+            ${{ env.IMAGE_PREFIX }}/basket-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -83,3 +83,6 @@ $RECYCLE.BIN/
 # Tooling
 .tools/
 .config/dotnet-tools.json
+
+# Environment variables — never commit secrets
+.env
