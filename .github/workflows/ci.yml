@@ -11,10 +11,10 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16         # latest yerine sabit versiyon kullan
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: Monster.123  # düz metin şifre koyma
+          POSTGRES_PASSWORD: Monster.123
           POSTGRES_DB: ECommerce_ProductDb
         ports:
           - 5432:5432
@@ -54,8 +54,15 @@ jobs:
           CURRENT=$(dotnet ef migrations list \
             --project src/Services/ProductService/ProductService.Infrastructure \
             --startup-project src/Services/ProductService/ProductService.API \
-            --no-build 2>/dev/null | grep -v "^$" | tail -1 || echo "0")
-          echo "migration=${CURRENT:-0}" >> $GITHUB_OUTPUT
+            --no-build \
+            --configuration Release \
+            2>/dev/null | grep -E "^\S" | tail -1 || echo "")
+
+          if [ -z "$CURRENT" ]; then
+            echo "migration=0" >> $GITHUB_OUTPUT
+          else
+            echo "migration=$CURRENT" >> $GITHUB_OUTPUT
+          fi
 
       - name: Apply Migration
         id: migrate
@@ -64,23 +71,26 @@ jobs:
             --project src/Services/ProductService/ProductService.Infrastructure \
             --startup-project src/Services/ProductService/ProductService.API \
             --no-build \
+            --configuration Release \
             --connection "${{ secrets.DB_CONNECTION_STRING }}"
 
       - name: Rollback on Failure
         if: failure() && steps.migrate.outcome == 'failure'
         run: |
           TARGET="${{ steps.current_migration.outputs.migration }}"
+          echo "Rolling back to: $TARGET"
           dotnet ef database update "$TARGET" \
             --project src/Services/ProductService/ProductService.Infrastructure \
             --startup-project src/Services/ProductService/ProductService.API \
             --no-build \
+            --configuration Release \
             --connection "${{ secrets.DB_CONNECTION_STRING }}"
 
       - name: Build Product API Image
         run: |
           docker build \
             -f src/Services/ProductService/ProductService.API/Dockerfile \
-            -t product-api:${{ github.sha }} \     # tag ekle
+            -t product-api:${{ github.sha }} \
             .
 
       - name: Build Basket API Image
