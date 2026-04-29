@@ -38,6 +38,9 @@ jobs:
       - name: Install EF Tool
         run: dotnet tool install --global dotnet-ef
 
+      - name: Restore
+        run: dotnet restore src/Services/ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj
+
       - name: Get Current Migration
         id: current_migration
         run: |
