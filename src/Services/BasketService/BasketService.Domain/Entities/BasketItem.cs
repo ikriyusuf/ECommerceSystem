@@ -6,4 +6,9 @@ public class BasketItem
     public string ProductName { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public int Quantity { get; set; }
+
+    /// <summary>
+    /// Bu ürünün sepetteki toplam fiyatı (Price × Quantity)
+    /// </summary>
+    public decimal TotalPrice => Price * Quantity;
 }
