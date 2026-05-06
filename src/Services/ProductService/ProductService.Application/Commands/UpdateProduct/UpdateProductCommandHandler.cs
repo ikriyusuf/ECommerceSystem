@@ -4,6 +4,7 @@ using ProductService.Application.DTOs;
 using ProductService.Application.Wrappers;
 using ProductService.Domain.Interfaces;
 
+
 namespace ProductService.Application.Commands.UpdateProduct;
 
 public class UpdateProductCommandHandler

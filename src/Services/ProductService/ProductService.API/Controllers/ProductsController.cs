@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ProductService.Application.Commands.AddProductToBasket;
 using ProductService.Application.Commands.CreateProduct;
+
 using ProductService.Application.Commands.DeleteProduct;
 using ProductService.Application.Commands.UpdateProduct;
 using ProductService.Application.DTOs;
@@ -80,6 +82,24 @@ public class ProductsController : ControllerBase
         // Route id'si ile body command'ındaki Id'yi birleştir
         var updatedCommand = command with { Id = id };
         var result = await _mediator.Send(updatedCommand, cancellationToken);
+
+        if (!result.Success)
+            return NotFound(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Bir ürünü sepete eklemek için event yayınlar.
+    /// </summary>
+    [HttpPost("AddToBasket")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddToBasket(
+        [FromBody] AddProductToBasketCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(command, cancellationToken);
 
         if (!result.Success)
             return NotFound(result);

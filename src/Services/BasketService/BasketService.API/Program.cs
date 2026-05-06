@@ -9,8 +9,7 @@ builder.Services.AddControllers();
 // Add Layer Dependencies
 builder.Services.AddApplicationServices();
 
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
-builder.Services.AddInfrastructureServices(redisConnectionString);
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 

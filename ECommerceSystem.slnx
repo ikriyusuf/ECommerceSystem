@@ -7,6 +7,9 @@
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/ApiGateway/" />
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/Shared.Contracts/Shared.Contracts.csproj" />
+  </Folder>
   <Folder Name="/src/Services/" />
   <Folder Name="/src/Services/BasketService/">
     <Project Path="src/Services/BasketService/BasketService.API/BasketService.API.csproj" />

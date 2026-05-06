@@ -16,6 +16,7 @@ COPY ["src/Services/ProductService/ProductService.API/ProductService.API.csproj"
 COPY ["src/Services/ProductService/ProductService.Application/ProductService.Application.csproj", "src/Services/ProductService/ProductService.Application/"]
 COPY ["src/Services/ProductService/ProductService.Domain/ProductService.Domain.csproj", "src/Services/ProductService/ProductService.Domain/"]
 COPY ["src/Services/ProductService/ProductService.Infrastructure/ProductService.Infrastructure.csproj", "src/Services/ProductService/ProductService.Infrastructure/"]
+COPY ["src/BuildingBlocks/Shared.Contracts/Shared.Contracts.csproj", "src/BuildingBlocks/Shared.Contracts/"]
 RUN dotnet restore "./src/Services/ProductService/ProductService.API/ProductService.API.csproj"
 COPY . .
 WORKDIR "/src/src/Services/ProductService/ProductService.API"

@@ -16,6 +16,7 @@ COPY ["src/Services/BasketService/BasketService.API/BasketService.API.csproj", "
 COPY ["src/Services/BasketService/BasketService.Application/BasketService.Application.csproj", "src/Services/BasketService/BasketService.Application/"]
 COPY ["src/Services/BasketService/BasketService.Domain/BasketService.Domain.csproj", "src/Services/BasketService/BasketService.Domain/"]
 COPY ["src/Services/BasketService/BasketService.Infrastructure/BasketService.Infrastructure.csproj", "src/Services/BasketService/BasketService.Infrastructure/"]
+COPY ["src/BuildingBlocks/Shared.Contracts/Shared.Contracts.csproj", "src/BuildingBlocks/Shared.Contracts/"]
 RUN dotnet restore "./src/Services/BasketService/BasketService.API/BasketService.API.csproj"
 COPY . .
 WORKDIR "/src/src/Services/BasketService/BasketService.API"

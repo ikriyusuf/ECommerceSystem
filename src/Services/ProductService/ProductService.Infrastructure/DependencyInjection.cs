@@ -29,6 +29,9 @@ public static class DependencyInjection
         // Repository ve Unit of Work kayıtları
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // MassTransit (RabbitMQ)
+        services.AddMassTransitWithRabbitMQ(configuration);
+
         return services;
     }
 }

@@ -2,9 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BasketService.Domain\BasketService.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Shared.Contracts\Shared.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit.Abstractions" Version="9.1.0" />
     <PackageReference Include="MediatR" Version="14.1.0" />
   </ItemGroup>
 
